@@ -4,10 +4,9 @@ from pathlib import Path
 import pandas as pd
 from pymongo import MongoClient
 
-from config import RAW_DATA_PATH, CLEAN_DATA_PATH, MONGO_URI, DB_NAME
-from postgres_loader import load_csv_to_staging, run_sql
-
-
+from core.config import RAW_DATA_PATH, CLEAN_DATA_PATH, MONGO_URI, DB_NAME
+from infrastructure.postgres_loader import PostgresStagingLoader
+from core.config import POSTGRES_CONFIG
 # Logging
 logging.basicConfig(
     level=logging.INFO,
@@ -129,7 +128,7 @@ def full_refresh_to_mongo(collection_name: str, df: pd.DataFrame):
     finally:
         client.close()
 
-
+loader = PostgresStagingLoader(POSTGRES_CONFIG)
 
 # Pipeline
 
@@ -165,10 +164,9 @@ def main():
         full_refresh_to_mongo("fact_orders_clean", fact_df)
 
         # Data Warehouse
-        load_csv_to_staging(FACT_CSV_PATH, STAGING_TABLE)
-        with open("sql/load_dw.sql") as f:
-            run_sql(f.read())
 
+        loader.load_csv(FACT_CSV_PATH, "staging_fact_orders")
+        
         logger.info("ETL pipeline completed successfully")
 
     except Exception:

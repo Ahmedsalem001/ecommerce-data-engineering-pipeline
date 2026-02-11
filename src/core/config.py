@@ -1,9 +1,13 @@
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 RAW_DATA_PATH = Path("data/raw")
 CLEAN_DATA_PATH = Path("data/clean")
 
-MONGO_URI = os.getenv("MONGO_URI")
+MONGO_URI = os.getenv("MONGO_URI" )
 DB_NAME = os.getenv("DB_NAME")
 
 POSTGRES_CONFIG = {
